@@ -169,15 +169,10 @@ canvas#visualizer { display: block; width: 100%; height: 100%; }
 }
 .stem-panel[data-stem="bass"]::after {
   content: 'MELODIC';
-  position: absolute;
-  top: 28px;
-  right: 12px;
-  font-size: 0.6rem;
-  letter-spacing: 0.22em;
-  color: var(--muted);
-  opacity: 0.6;
+  position: absolute; top: 8px; right: 12px;
+  font-size: 0.48rem; letter-spacing: 0.2em;
+  color: var(--muted); opacity: 0.5;
   pointer-events: none;
-  z-index: 2;
 }
 
 /* ─── Controls Bar ──────────────────────────────────────────── */
