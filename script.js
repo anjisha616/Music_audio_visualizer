@@ -578,26 +578,31 @@ function renderLoop() {
   const freqData = new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(freqData);
 
+  // Calculate and push history only once per frame for each stem
   STEMS.forEach(name => {
     const def    = BAND_DEFS[name];
     const band   = getBandSlice(freqData, def.lo, def.hi);
     const rawE   = getBandEnergy(freqData, def.lo, def.hi);
-
     // Smooth energy
     const prev = stemEnergy[name];
     stemEnergy[name] = prev * 0.72 + rawE * 0.28;
     const e = stemEnergy[name];
-
     // Transient delta (onset detection)
     const delta = Math.max(0, e - (stemEnergyPrev[name] || 0));
     stemEnergyPrev[name] = e;
-
-    // Push to history
-    pushHistory(name, e);
-
+    // Only push to history for kick and snare once per frame
+    if (name === 'kick' || name === 'snare') {
+      pushHistory(name, e);
+    }
     // Update meter
     if (stemMeter[name]) stemMeter[name].style.width = `${Math.min(e * 210, 100)}%`;
-
+  });
+  // Now draw each stem (history is not advanced again)
+  STEMS.forEach(name => {
+    const def    = BAND_DEFS[name];
+    const band   = getBandSlice(freqData, def.lo, def.hi);
+    const e      = stemEnergy[name];
+    const delta  = Math.max(0, e - (stemEnergyPrev[name] || 0));
     const sc = stemCtx[name];
     if (name === 'kick')   drawKick(sc, band, e, delta);
     if (name === 'snare')  drawSnare(sc, band, e, delta);
