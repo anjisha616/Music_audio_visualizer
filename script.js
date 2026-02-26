@@ -352,11 +352,13 @@ function drawKick(sc, band, energy, delta) {
     sc.fillStyle = g; sc.fillRect(0,0,W,H);
   }
 
-  // Energy history waveform along bottom
-  const hist = getHistory('kick', W);
+  // Energy history waveform along bottom (map buffer to canvas width)
+  const hist = getHistory('kick', HIST_LEN);
   sc.beginPath();
-  for (let i=0; i<hist.length; i++) {
-    const x = i, y = H - hist[i] * H * 0.35;
+  for (let i=0; i<W; i++) {
+    const idx = Math.floor(i / W * HIST_LEN);
+    const v = hist[idx];
+    const x = i, y = H - v * H * 0.35;
     i===0 ? sc.moveTo(x,y) : sc.lineTo(x,y);
   }
   sc.strokeStyle = 'rgba(255,69,0,0.5)'; sc.lineWidth = 1.5; sc.stroke();
@@ -371,10 +373,11 @@ function drawSnare(sc, band, energy, delta) {
 
   sc.fillStyle = 'rgba(8,10,15,0.35)'; sc.fillRect(0,0,W,H);
 
-  // Scrolling history bars
-  const hist = getHistory('snare', W);
-  for (let i=0; i<hist.length; i++) {
-    const v    = hist[i];
+  // Scrolling history bars (map buffer to canvas width)
+  const hist = getHistory('snare', HIST_LEN);
+  for (let i=0; i<W; i++) {
+    const idx = Math.floor(i / W * HIST_LEN);
+    const v    = hist[idx];
     const barH = v * H * 0.85;
     const alpha = 0.3 + v * 0.7;
     sc.fillStyle = `rgba(255,45,111,${alpha})`;
