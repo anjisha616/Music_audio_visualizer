@@ -59,7 +59,6 @@ const BAND_DEFS = {
   guitar: { lo: 300,  hi: 5000 },
   vocals: { lo: 300,  hi: 3000 },
 };
-
 const STEM_CONFIG = {
   kick:   { color: '#ff4500' },
   snare:  { color: '#ff2d6f' },
