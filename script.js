@@ -34,10 +34,15 @@ let currentPalette = palettes.neon;
 
 // ─── Canvas Resize ────────────────────────────────────────────
 function resizeCanvas() {
-  canvas.width  = canvasWrapper.clientWidth  * devicePixelRatio;
-  canvas.height = canvasWrapper.clientHeight * devicePixelRatio;
-  canvas.style.width  = canvasWrapper.clientWidth  + 'px';
-  canvas.style.height = canvasWrapper.clientHeight + 'px';
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvasWrapper.clientWidth;
+  const H = canvasWrapper.clientHeight;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
@@ -206,8 +211,8 @@ function makeLinearGrad(x0, y0, x1, y1) {
 
 // ─── Visualizer Draw Functions ────────────────────────────────
 function drawBars(data) {
-  const W = canvas.width, H = canvas.height;
-  const count  = Math.floor(W / 7 / devicePixelRatio);
+  const W = canvasWrapper.clientWidth, H = canvasWrapper.clientHeight;
+  const count  = Math.floor(W / 7);
   const sliceW = W / count;
   const grad   = makeLinearGrad(0, H, 0, 0);
 
@@ -223,17 +228,16 @@ function drawBars(data) {
     // reflection
     ctx.save();
     ctx.globalAlpha = 0.15;
-    ctx.scale(1, -1);
-    ctx.fillRect(x, -H - 2, w, barH * 0.35);
+    ctx.fillRect(x, H + 2, w, barH * 0.35);
     ctx.restore();
   }
 }
 
 function drawWave(data) {
-  const W = canvas.width, H = canvas.height;
+  const W = canvasWrapper.clientWidth, H = canvasWrapper.clientHeight;
   const grad = makeLinearGrad(0, 0, W, 0);
   ctx.strokeStyle = grad;
-  ctx.lineWidth   = 2.5 * devicePixelRatio;
+  ctx.lineWidth   = 2.5;
   ctx.shadowBlur  = 12 * devicePixelRatio;
   ctx.shadowColor = currentPalette[0];
   ctx.beginPath();
@@ -252,7 +256,7 @@ function drawWave(data) {
 }
 
 function drawRadial(data) {
-  const W = canvas.width, H = canvas.height;
+  const W = canvasWrapper.clientWidth, H = canvasWrapper.clientHeight;
   const cx = W / 2, cy = H / 2;
   const baseR = Math.min(W, H) * 0.18;
   const maxR  = Math.min(W, H) * 0.42;
@@ -276,7 +280,7 @@ function drawRadial(data) {
     const bc     = Math.round(c1.b + (c2.b - c1.b) * frac);
 
     ctx.strokeStyle = `rgba(${rc},${gc},${bc},${0.5 + v * 0.5})`;
-    ctx.lineWidth   = (1 + v * 3) * devicePixelRatio;
+    ctx.lineWidth   = (1 + v * 3);
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(angle) * baseR, cy + Math.sin(angle) * baseR);
     ctx.lineTo(cx + Math.cos(angle) * r,     cy + Math.sin(angle) * r);
@@ -304,9 +308,9 @@ function hexToRgb(hex) {
 // ─── Idle Animation ───────────────────────────────────────────
 let idleT = 0;
 function drawIdle() {
-  const W = canvas.width, H = canvas.height;
+  const W = canvasWrapper.clientWidth, H = canvasWrapper.clientHeight;
   idleT += 0.015;
-  const count  = Math.floor(W / 7 / devicePixelRatio);
+  const count  = Math.floor(W / 7);
   const sliceW = W / count;
   const grad   = makeLinearGrad(0, H, 0, 0);
 
@@ -325,7 +329,7 @@ function drawIdle() {
 // ─── Render Loop ─────────────────────────────────────────────
 function renderLoop() {
   animId = requestAnimationFrame(renderLoop);
-  const W = canvas.width, H = canvas.height;
+  const W = canvasWrapper.clientWidth, H = canvasWrapper.clientHeight;
   ctx.clearRect(0, 0, W, H);
 
   if (!analyser || !isPlaying) {
