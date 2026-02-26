@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SONIQ — Audio Visualizer</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
 </head>
 <body>
@@ -13,60 +13,151 @@
   <header>
     <div class="logo">SONIQ</div>
     <div class="tagline">AUDIO VISUALIZER</div>
+    <div class="header-right">
+      <button class="view-toggle active" id="viewFull">FULL MIX</button>
+      <button class="view-toggle" id="viewStems">STEM VIEW</button>
+    </div>
   </header>
 
-  <main>
-    <div class="canvas-wrapper" id="canvasWrapper">
-      <canvas id="visualizer"></canvas>
-      <div class="idle-msg" id="idleMsg">
-        <span>DROP A TRACK</span>
-        <p>or click to upload</p>
+  <main id="mainArea">
+
+    <!-- ── FULL VIEW ── -->
+    <div id="fullView" class="view active">
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <canvas id="visualizer"></canvas>
+        <div class="idle-msg" id="idleMsg">
+          <span>DROP A TRACK</span>
+          <p>or click to upload</p>
+        </div>
       </div>
     </div>
 
-    <div class="controls">
-      <div class="file-area">
-        <input type="file" id="fileInput" accept="audio/*" />
-        <label for="fileInput" class="upload-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          LOAD AUDIO
-        </label>
-        <span class="file-name" id="fileName">No file selected</span>
-      </div>
+    <!-- ── STEM VIEW ── -->
+    <div id="stemView" class="view">
+      <div class="stem-grid">
 
-      <div class="player-controls">
-        <button class="ctrl-btn" id="playBtn" disabled>
-          <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        </button>
-        <div class="progress-wrap">
-          <div class="time" id="currentTime">0:00</div>
-          <input type="range" id="progress" value="0" min="0" max="100" step="0.1" />
-          <div class="time" id="duration">0:00</div>
+        <!-- ROW 1: Drum Kit -->
+        <div class="stem-panel" data-stem="kick">
+          <div class="stem-header">
+            <div class="stem-title-row">
+              <span class="stem-icon">◎</span>
+              <span class="stem-name">KICK DRUM</span>
+              <span class="stem-hz">40–150 Hz</span>
+            </div>
+            <div class="stem-meter-wrap"><div class="stem-meter" id="meter-kick"></div></div>
+          </div>
+          <canvas class="stem-canvas" id="canvas-kick"></canvas>
         </div>
-        <div class="volume-wrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-          <input type="range" id="volume" value="80" min="0" max="100" />
-        </div>
-      </div>
 
-      <div class="viz-controls">
-        <span class="label">MODE</span>
-        <div class="mode-btns">
-          <button class="mode-btn active" data-mode="bars">BARS</button>
-          <button class="mode-btn" data-mode="wave">WAVE</button>
-          <button class="mode-btn" data-mode="circle">RADIAL</button>
+        <div class="stem-panel" data-stem="snare">
+          <div class="stem-header">
+            <div class="stem-title-row">
+              <span class="stem-icon">◈</span>
+              <span class="stem-name">SNARE / TOMS</span>
+              <span class="stem-hz">150–600 Hz</span>
+            </div>
+            <div class="stem-meter-wrap"><div class="stem-meter" id="meter-snare"></div></div>
+          </div>
+          <canvas class="stem-canvas" id="canvas-snare"></canvas>
         </div>
-        <span class="label">COLOR</span>
-        <div class="color-btns">
-          <button class="color-btn active" data-color="neon" style="background: linear-gradient(135deg,#00ffe0,#7b2fff)"></button>
-          <button class="color-btn" data-color="fire" style="background: linear-gradient(135deg,#ff6a00,#ee0979)"></button>
-          <button class="color-btn" data-color="ice" style="background: linear-gradient(135deg,#74ebd5,#acb6e5)"></button>
-          <button class="color-btn" data-color="gold" style="background: linear-gradient(135deg,#f7971e,#ffd200)"></button>
+
+        <div class="stem-panel" data-stem="hats">
+          <div class="stem-header">
+            <div class="stem-title-row">
+              <span class="stem-icon">◌</span>
+              <span class="stem-name">HI-HATS / CYMBALS</span>
+              <span class="stem-hz">6–18 kHz</span>
+            </div>
+            <div class="stem-meter-wrap"><div class="stem-meter" id="meter-hats"></div></div>
+          </div>
+          <canvas class="stem-canvas" id="canvas-hats"></canvas>
         </div>
-      </div>
-    </div>
+
+        <!-- ROW 2: Melodic -->
+        <div class="stem-panel" data-stem="bass">
+          <div class="stem-header">
+            <div class="stem-title-row">
+              <span class="stem-icon">◉</span>
+              <span class="stem-name">BASS</span>
+              <span class="stem-hz">80–300 Hz sustained</span>
+            </div>
+            <div class="stem-meter-wrap"><div class="stem-meter" id="meter-bass"></div></div>
+          </div>
+          <canvas class="stem-canvas" id="canvas-bass"></canvas>
+        </div>
+
+        <div class="stem-panel" data-stem="guitar">
+          <div class="stem-header">
+            <div class="stem-title-row">
+              <span class="stem-icon">◇</span>
+              <span class="stem-name">GUITAR / KEYS</span>
+              <span class="stem-hz">300 Hz–5 kHz</span>
+            </div>
+            <div class="stem-meter-wrap"><div class="stem-meter" id="meter-guitar"></div></div>
+          </div>
+          <canvas class="stem-canvas" id="canvas-guitar"></canvas>
+        </div>
+
+        <div class="stem-panel" data-stem="vocals">
+          <div class="stem-header">
+            <div class="stem-title-row">
+              <span class="stem-icon">▣</span>
+              <span class="stem-name">VOCALS</span>
+              <span class="stem-hz">300 Hz–3 kHz</span>
+            </div>
+            <div class="stem-meter-wrap"><div class="stem-meter" id="meter-vocals"></div></div>
+          </div>
+          <canvas class="stem-canvas" id="canvas-vocals"></canvas>
+        </div>
+
+      </div><!-- /stem-grid -->
+    </div><!-- /stemView -->
+
   </main>
 
-  <script src="script.js"></script>
+  <!-- ── CONTROLS BAR ── -->
+  <div class="controls">
+    <div class="file-area">
+      <input type="file" id="fileInput" accept="audio/*" />
+      <label for="fileInput" class="upload-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        LOAD AUDIO
+      </label>
+      <span class="file-name" id="fileName">No file selected</span>
+    </div>
+
+    <div class="player-controls">
+      <button class="ctrl-btn" id="playBtn" disabled>
+        <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <div class="progress-wrap">
+        <div class="time" id="currentTime">0:00</div>
+        <input type="range" id="progress" value="0" min="0" max="100" step="0.1" />
+        <div class="time" id="duration">0:00</div>
+      </div>
+      <div class="volume-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        <input type="range" id="volume" value="80" min="0" max="100" />
+      </div>
+    </div>
+
+    <div class="viz-controls" id="vizControls">
+      <span class="label">MODE</span>
+      <div class="mode-btns">
+        <button class="mode-btn active" data-mode="bars">BARS</button>
+        <button class="mode-btn" data-mode="wave">WAVE</button>
+        <button class="mode-btn" data-mode="circle">RADIAL</button>
+      </div>
+      <span class="label">COLOR</span>
+      <div class="color-btns">
+        <button class="color-btn active" data-color="neon" style="background:linear-gradient(135deg,#00ffe0,#7b2fff)"></button>
+        <button class="color-btn" data-color="fire" style="background:linear-gradient(135deg,#ff6a00,#ee0979)"></button>
+        <button class="color-btn" data-color="ice"  style="background:linear-gradient(135deg,#74ebd5,#acb6e5)"></button>
+        <button class="color-btn" data-color="gold" style="background:linear-gradient(135deg,#f7971e,#ffd200)"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
